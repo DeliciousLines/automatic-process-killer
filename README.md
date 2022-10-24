@@ -1,5 +1,5 @@
 # Automatic process killer for Windows
-This is a simple utility that kills unwanted processes at any time.
+This is a simple utility that automatically kills unwanted processes at any time.
 
 ## How to use it
 Simply run ``pk.exe``. You can access the program through a tray icon. By default the program does not run at startup, you can modify this through the tray menu.
