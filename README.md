@@ -4,7 +4,7 @@ This is a simple utility that kills unwanted processes at any time.
 ## How to use it
 Simply run ``pk.exe``. You can access the program through a tray icon. By default the program does not run at startup, you can modify this through the tray menu.
 
-Do tell the program which processes to kill, make a list of executables names (case-sensitivity matters) in a file named ``blacklist.txt`` and put this file at the program location (some/path/pk.exe).
+To tell the program which processes to kill, make a list of executables names (case-sensitivity matters) in a file named ``blacklist.txt`` and put this file at the program location (some/path/pk.exe).
 One line in this list corresponds to one process to kill. The program automatically reloads the list when it is modified.
 
 ## How to compile it yourself
