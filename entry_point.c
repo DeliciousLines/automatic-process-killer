@@ -90,8 +90,7 @@ const u16*   REGISTRY_KEY_NAME_UTF16 = L"win32_process_killer";
 
 const String LIST_NAME = STRING("blacklist.txt");
 
-const u8 SHOULD_RUN     = 0x01;
-const u8 RAN_AT_STARTUP = 0x02;
+const u8 SHOULD_RUN = 0x01;
 u8 global_flags = SHOULD_RUN;
 // Globals. END
 
@@ -160,7 +159,7 @@ String utf16_to_utf8(u16* input, u32 num_characters_in_input)
             
             if((leading_surrogate & 0b1111110000000000) == 0b1101100000000000 && (trailing_surrogate & 0b1111110000000000) == 0b1101110000000000)
             {
-                codepoint = (cast(leading_surrogate - 0xd800, u32) << 16) | (trailing_surrogate - 0xdc00);
+                codepoint = (cast(leading_surrogate - 0xd800, u32) << 10) | (trailing_surrogate - 0xdc00);
                 input += 2;
             }
             else input++;
@@ -352,8 +351,8 @@ b8 do_we_run_at_startup()
     const u32 VALUE_NAME_MAX_SIZE = 256  * sizeof(u16);
     const u32 VALUE_DATA_MAX_SIZE = 2048 * sizeof(u16);
     
-    char value_name[VALUE_NAME_MAX_SIZE];
-    u8   value_data[VALUE_DATA_MAX_SIZE];
+    u8 value_name[VALUE_NAME_MAX_SIZE];
+    u8 value_data[VALUE_DATA_MAX_SIZE];
     
     u32 index = 0;
     while(1)
@@ -588,7 +587,7 @@ int WinMain()
                 char* c     = blacklist.data;
                 char* limit = blacklist.data + blacklist.count;
                 
-                String blacklist_name = {c};
+                String blacklist_name = {.data = c};
                 while(c < limit)
                 {
                     char character = *c;
