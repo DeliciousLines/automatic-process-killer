@@ -28,7 +28,7 @@ IN THE SOFTWARE.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <psapi.h>    // For EnumProcesses().
-#include <shlwapi.h>  // For PathRemoveFileSpecW().
+#include <shlwapi.h>  // For file path stuff.
 #include <shellapi.h> // For tray icon stuff.
 
 #pragma comment(lib, "Kernel32")
@@ -439,19 +439,34 @@ LRESULT window_message_callback(HWND window, UINT message, WPARAM wparam, LPARAM
             // Draw and update menu. START
             HMENU menu = CreatePopupMenu();
             
-            const u32 MENU_EXIT                  = 0x01;
-            const u32 MENU_RUN_AT_STARTUP        = 0x02;
-            const u32 MENU_DO_NOT_RUN_AT_STARTUP = 0x04;
-            const u32 MENU_OPEN_BLACKLIST        = 0x08;
+            const u32 MENU_EXIT                      = 0x01;
+            const u32 MENU_RUN_AT_STARTUP            = 0x02;
+            const u32 MENU_DO_NOT_RUN_AT_STARTUP     = 0x04;
+            const u32 MENU_OPEN_BLACKLIST            = 0x08;
+            const u32 MENU_CREATE_AND_OPEN_BLACKLIST = 0x10;
             
-            b8 run_at_startup = do_we_run_at_startup();
+            // Get the black list filepath. START
+            String exe_filepath = get_exe_filepath();
+            
+            String blacklist_filepath = {.data = tallocate(exe_filepath.count + LIST_NAME.count + 8)};
+            stbsp_sprintf(blacklist_filepath.data, "%s/%s", exe_filepath.data, LIST_NAME.data);
+            blacklist_filepath.count = strlen(blacklist_filepath.data);
+            
+            u16* utf16_blacklist_filepath = utf8_to_utf16(blacklist_filepath);
+            // Get the black list filepath. END
+            
+            b8 run_at_startup   = do_we_run_at_startup();
+            b8 blacklist_exists = PathFileExistsW(utf16_blacklist_filepath);
             
             AppendMenu(menu, MF_STRING | MF_GRAYED, 0, "Process Killer");
             AppendMenu(menu, MF_SEPARATOR, 0, NULL);
             
             if(run_at_startup) AppendMenu(menu, MF_STRING, MENU_DO_NOT_RUN_AT_STARTUP, "Do not run at start-up");
             else               AppendMenu(menu, MF_STRING, MENU_RUN_AT_STARTUP,        "Run at start-up");
-            AppendMenu(menu, MF_STRING, MENU_OPEN_BLACKLIST, "Open black list");
+            
+            if(blacklist_exists) AppendMenu(menu, MF_STRING, MENU_OPEN_BLACKLIST, "Open black list");
+            else                 AppendMenu(menu, MF_STRING, MENU_CREATE_AND_OPEN_BLACKLIST, "Create and open black list");
+            
             AppendMenu(menu, MF_STRING, MENU_EXIT, "Exit");
             
             POINT mouse = {};
@@ -473,13 +488,14 @@ LRESULT window_message_callback(HWND window, UINT message, WPARAM wparam, LPARAM
             }
             else if(menu_item == MENU_OPEN_BLACKLIST)
             {
-                String exe_filepath  = get_exe_filepath();
+                ShellExecuteW(NULL, L"open", utf16_blacklist_filepath, NULL, NULL, SW_SHOWNORMAL);
+            }
+            else if(menu_item == MENU_CREATE_AND_OPEN_BLACKLIST)
+            {
+                void* file = CreateFileW(utf16_blacklist_filepath, 0, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+                CloseHandle(file);
                 
-                String list_filepath = {.data = tallocate(exe_filepath.count + LIST_NAME.count + 8)};
-                stbsp_sprintf(list_filepath.data, "%s/%s", exe_filepath.data, LIST_NAME.data);
-                list_filepath.count = strlen(list_filepath.data);
-            
-                ShellExecuteW(NULL, L"open", utf8_to_utf16(list_filepath), NULL, NULL, SW_SHOWNORMAL);
+                ShellExecuteW(NULL, L"open", utf16_blacklist_filepath, NULL, NULL, SW_SHOWNORMAL);
             }
             
             DestroyMenu(menu);
