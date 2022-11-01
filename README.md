@@ -4,8 +4,8 @@ This is a simple utility that automatically kills unwanted processes at any time
 ## How to use it
 Simply run ``pk.exe``. You can access the program through a tray icon. By default the program does not run at startup, you can modify this through the tray menu.
 
-To tell the program which processes to kill, make a list of executables names (case-sensitivity matters) in a file named ``blacklist.txt`` and put this file at the program location (some/path/pk.exe).
-One line in this list corresponds to one process to kill. The program automatically reloads the list when it is modified.
+To tell the program which processes to kill, make a list of executables names (case-sensitivity matters) by clicking on 'create and open black list' in the tray menu.
+One line in this list corresponds to one process to kill. You can add subsequent modifications to this list through the 'open black list' option in the tray menu. The program automatically reloads the list when it is modified.
 
 ## How to compile it yourself
 Just run your C compiler on ``entry_point.c``. Do not forget to include ``resources.res`` when linking.
