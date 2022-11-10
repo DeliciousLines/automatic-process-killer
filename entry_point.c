@@ -95,13 +95,13 @@ u8 global_flags = SHOULD_RUN;
 // Globals. END
 
 
-String String_(char* c_string)
+inline String String_(char* c_string)
 {
     String string = {.data = c_string, .count = strlen(c_string)};
     return string;
 }
 
-Memory reallocate(Memory data, u64 new_size)
+inline Memory reallocate(Memory data, u64 new_size)
 {
     if(data.size >= new_size) return data;
     
@@ -126,7 +126,7 @@ inline void treset()
     tmp_memory_offset = 0;
 }
 
-b8 strings_match(String* a, String* b)
+inline b8 strings_match(String* a, String* b)
 {
     if(a->count != b->count) return false;
     return (memcmp(a->data, b->data, a->count) == 0);
@@ -289,7 +289,7 @@ String get_exe_filepath()
     return filepath;
 }
 
-String get_full_exe_filepath()
+inline String get_full_exe_filepath()
 {
     u32 num_characters_in_filepath = 0;
     u16* utf16_filepath = get_full_exe_filepath_utf16(&num_characters_in_filepath);
@@ -383,13 +383,20 @@ b8 do_we_run_at_startup()
         
             String exe_filepath = get_full_exe_filepath();
             
-            if(strings_match(&filepath, &exe_filepath)) return true; // The filepath contained in the key value is correct.
+            if(strings_match(&filepath, &exe_filepath))
+            {
+                RegCloseKey(key);
+                return true; // The filepath contained in the key value is correct.
+            }
             
             RegDeleteKeyValueW(key, NULL, REGISTRY_KEY_NAME_UTF16); // The filepath contained in the key is out of date. No need to keep it around.
+            RegCloseKey(key);
+            
             return false;
         }
     }
     
+    RegCloseKey(key);
     return false;
 }
 
@@ -426,6 +433,8 @@ void set_run_at_startup(b8 run_at_startup)
     {
         status = RegDeleteKeyValueW(key, NULL, utf16_key_name);
     }
+    
+    RegCloseKey(key);
 }
 
 LRESULT window_message_callback(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
