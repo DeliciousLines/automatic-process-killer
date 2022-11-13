@@ -636,6 +636,7 @@ int WinMain()
                 // Go through the black list and kill the process if a match is found between this name and one of the black list's. END
                 
                 done_with_this_process:;
+                CloseHandle(process);
             }
             // Go through processes and take down the ones on the black list. END
         }
