@@ -604,7 +604,7 @@ int WinMain()
                 u8 utf16_name[UTF16_NAME_MAX_SIZE];
                 
                 DWORD num_characters_in_name = GetModuleBaseNameW(process, NULL, cast(utf16_name, u16*), UTF16_NAME_MAX_SIZE);
-                if(!num_characters_in_name) continue;
+                if(!num_characters_in_name) goto done_with_this_process;
                 
                 String name = utf16_to_utf8(cast(utf16_name, u16*), num_characters_in_name);
                 
