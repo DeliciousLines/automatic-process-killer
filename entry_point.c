@@ -519,6 +519,8 @@ LRESULT window_message_callback(HWND window, UINT message, WPARAM wparam, LPARAM
 
 int WinMain()
 {
+    SetProcessDPIAware();
+
     const u32 MAX_PROCESSES_TO_LIST = 1024;
     DWORD process_ids[MAX_PROCESSES_TO_LIST];
     
