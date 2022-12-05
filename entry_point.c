@@ -134,9 +134,9 @@ inline b8 strings_match(String* a, String* b)
 
 String utf16_to_utf8(u16* input, u32 num_characters_in_input)
 {
-    u32 output_size = num_characters_in_input * 4 + 1;
+    u32 output_size = num_characters_in_input * 4 + 1; // '+ 1' to easily convert to a C string.
     
-    u8* output = tallocate(output_size); // '+ 1' to easily convert to a C string.
+    u8* output = tallocate(output_size);
     String result = {.data = cast(output, char*)};
     memset(result.data, 0, output_size);
     
@@ -406,8 +406,6 @@ void set_run_at_startup(b8 run_at_startup)
     LSTATUS status = RegCreateKeyExA(HKEY_CURRENT_USER, REGISTRY_KEY_PATH.data, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, NULL);
     if(status != ERROR_SUCCESS) return;
     
-    u16* utf16_key_name = utf8_to_utf16(REGISTRY_KEY_NAME);
-    
     if(run_at_startup)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +429,7 @@ void set_run_at_startup(b8 run_at_startup)
     }
     else
     {
-        status = RegDeleteKeyValueW(key, NULL, utf16_key_name);
+        status = RegDeleteKeyValueW(key, NULL, REGISTRY_KEY_NAME_UTF16);
     }
     
     RegCloseKey(key);
